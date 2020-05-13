@@ -5,17 +5,18 @@ import (
 	nomad "github.com/hashicorp/nomad/api"
 	"log"
 	"os"
+	"time"
 )
 
 var (
-	nomadToken = os.Getenv("NOMAD_TOKEN")
+	nomadToken   = os.Getenv("NOMAD_TOKEN")
 	nomadAddress = os.Getenv("NOMAD_ADDR")
 )
 
 func main() {
 
 	client, err := nomad.NewClient(&nomad.Config{
-		Address: nomadAddress,
+		Address:  nomadAddress,
 		SecretID: nomadToken,
 	})
 	if err != nil {
@@ -40,7 +41,7 @@ func main() {
 
 	// Define task
 	task := &nomad.Task{
-		Name:   "nomad-fun",
+		Name:   taskName,
 		Driver: "docker",
 		Config: map[string]interface{}{
 			"image": "nginx:latest",
@@ -50,7 +51,7 @@ func main() {
 		},
 		Services: []*nomad.Service{&nomad.Service{
 			Name:        taskName,
-			Tags:        []string{fabioPrefix+"/"+taskName + " strip=/"+taskName},
+			Tags:        []string{fabioPrefix + "/" + taskName + " strip=/" + taskName},
 			PortLabel:   "http",
 			AddressMode: "",
 			Checks: []nomad.ServiceCheck{nomad.ServiceCheck{
@@ -58,8 +59,8 @@ func main() {
 				Type:      "tcp",
 				Protocol:  "tcp",
 				PortLabel: "http",
-				Interval:  30000000000,
-				Timeout:   60000000000,
+				Interval:  3 * time.Second,
+				Timeout:   10 * time.Second,
 			},
 			}},
 		},
@@ -74,9 +75,9 @@ func main() {
 
 	// Define the task group
 	taskGroup := &nomad.TaskGroup{
-		Name:             &taskName,
-		Count:            &taskCount,
-		Tasks:            []*nomad.Task{task},
+		Name:  &taskName,
+		Count: &taskCount,
+		Tasks: []*nomad.Task{task},
 	}
 	//  Get a Job type with default values for a service job
 	job := nomad.NewServiceJob(taskName, taskName, region, 100)
@@ -84,7 +85,7 @@ func main() {
 	job.Datacenters = []string{datacenter}
 
 	// This runs the job
-	resp,_,err := jobs.Register(job, &nomad.WriteOptions{
+	resp, _, err := jobs.Register(job, &nomad.WriteOptions{
 		Namespace: namespace,
 		AuthToken: nomadToken,
 	})
