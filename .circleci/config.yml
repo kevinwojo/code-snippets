@@ -89,7 +89,7 @@ jobs:
       - run: wget --spider -S -q https://iscircleciup.net
       - run: date
 
-  promote_artifiact:
+  promote_artifact:
       docker:
           - image: alpine:latest
       steps:
