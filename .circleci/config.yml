@@ -25,6 +25,8 @@ jobs:
       - run: echo "Calling API to start tests"
       - run: curl -I https://iscircleciup.net
   build:
+    requires:
+        - test
     docker:
       # specify the version
       - image: circleci/golang:1.9
@@ -46,6 +48,8 @@ jobs:
       - run: echo "Calling API to start build"
       - run: curl -I https://iscircleciup.net
   deliver:
+    requires:
+        - build
     docker:
       # specify the version
       - image: circleci/golang:1.9
@@ -67,6 +71,8 @@ jobs:
       - run: echo "Calling API to deliver to artifact store"
       - run: curl -I https://iscircleciup.net
   spinup_test_env:
+    requires:
+        - deliver
     docker:
       # specify the version
       - image: circleci/golang:1.9
@@ -88,6 +94,8 @@ jobs:
       - run: echo "Calling API to spinup test environment"
       - run: curl -I https://iscircleciup.net
   integration_test:
+    requires:
+        - spinup_test_env
     docker:
       # specify the version
       - image: circleci/golang:1.9
@@ -109,6 +117,8 @@ jobs:
       - run: echo "Calling API to run Cypress Tests"
       - run: curl -I https://iscircleciup.net
   deployment:
+    requires:
+        - integration_test
     docker:
       # specify the version
       - image: circleci/golang:1.9
