@@ -88,19 +88,14 @@ jobs:
       - run: echo "Calling API to run Cypress Tests"
       - run: wget --spider -S -q https://iscircleciup.net
       - run: date
-  deployment:
-    docker:
-      # specify the version
-      - image: alpine:latest
+  qa_approval:
+      type: approval
 
-    steps:
-        #- checkout
-
-      # specify any bash command here prefixed with `run: `
-      - run: echo "Calling API to promote artifact"
-      - run: wget --spider -S -q https://iscircleciup.net
-      - run: date
-
+  promote_artifiact:
+      docker:
+          - image: alpine:latest
+      steps:
+          - run: date
 
 ##
 ##
@@ -124,6 +119,10 @@ workflows:
             - integration_test:
                 requires:
                     - spinup_test_env
+            - qa_approval
+                type: approval
+                requires:
+                    - spinup_test_env 
             - promote_artifact:
                 requires:
                     - integration_test
