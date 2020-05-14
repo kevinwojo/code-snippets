@@ -55,8 +55,6 @@ jobs:
       - run: wget --spider -S -q https://iscircleciup.net
       - run: date
   spinup_test_env:
-    requires:
-        - deliver
     docker:
       # specify the version
       - image: alpine:latest
@@ -74,8 +72,6 @@ jobs:
       - run: wget --spider -S -q https://iscircleciup.net
       - run: date
   integration_test:
-    requires:
-        - spinup_test_env
     docker:
       # specify the version
       - image: alpine:latest
@@ -93,8 +89,6 @@ jobs:
       - run: wget --spider -S -q https://iscircleciup.net
       - run: date
   deployment:
-    requires:
-        - integration_test
     docker:
       # specify the version
       - image: alpine:latest
@@ -119,15 +113,17 @@ workflows:
         jobs:
             - test
             - build:
-                requires: test
+                requires:
+                    - test
             - deliver:
-                requires: build
-    Deployment:
-        jobs:
+                requires:
+                    - build
             - spinup_test_env:
-                requires: deliver
+                requires:
+                    - deliver
             - integration_test:
-                requires: spinup_test_env
-            - deployment:
-                requires: integration_test
-
+                requires:
+                    - spinup_test_env
+            - promote_artifact:
+                requires:
+                    - integration_test
