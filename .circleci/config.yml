@@ -119,7 +119,7 @@ workflows:
             - integration_test:
                 requires:
                     - spinup_test_env
-            - qa_approval
+            - qa_approval:
                 type: approval
                 requires:
                     - spinup_test_env 
