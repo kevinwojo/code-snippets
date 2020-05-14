@@ -123,4 +123,4 @@ workflows:
                     - spinup_test_env 
             - promote_artifact:
                 requires:
-                    - integration_test
+                    - qa_approval
